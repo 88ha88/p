@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>파일 암호화/복호화</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 30px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .label {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔐 파일 암호화/복호화</h2>
+
+    <div class="section">
+      <h3>RSA 키 생성</h3>
+      <input type="text" id="rsaUserId" placeholder="사용자 ID">
+      <button onclick="generateRSA()">RSA 키 생성</button>
+    </div>
+
+    <div class="section">
+      <h3>암호화</h3>
+      <input type="file" id="encryptFile">
+      <input type="text" id="encryptUserId" placeholder="사용자 ID">
+      <input type="file" id="publicKey">
+      <input type="text" id="newExt" placeholder="새 확장자 (예: .dat)">
+      <button onclick="encryptFile()">파일 암호화</button>
+    </div>
+
+    <div class="section">
+      <h3>복호화</h3>
+      <input type="file" id="decryptFile">
+      <input type="text" id="decryptUserId" placeholder="사용자 ID">
+      <input type="file" id="privateKey">
+      <button onclick="decryptFile()">파일 복호화</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function showResult(message) {
+      document.getElementById('result').innerText = message;
+    }
+
+    function generateRSA() {
+      const userId = document.getElementById("rsaUserId").value;
+      if (!userId) return alert("사용자 ID를 입력해주세요.");
+      fetch("/generate_rsa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId })
+      }).then(res => res.text()).then(showResult);
+    }
+
+    function encryptFile() {
+      const formData = new FormData();
+      const file = document.getElementById("encryptFile").files[0];
+      const pubKey = document.getElementById("publicKey").files[0];
+      const userId = document.getElementById("encryptUserId").value;
+      const newExt = document.getElementById("newExt").value;
+
+      if (!file || !pubKey || !userId) return alert("모든 입력값을 채워주세요.");
+
+      formData.append("file", file);
+      formData.append("public_key", pubKey);
+      formData.append("user_id", userId);
+      formData.append("new_ext", newExt);
+
+      fetch("/encrypt", {
+        method: "POST",
+        body: formData
+      }).then(res => res.text()).then(showResult);
+    }
+
+    function decryptFile() {
+      const formData = new FormData();
+      const file = document.getElementById("decryptFile").files[0];
+      const priKey = document.getElementById("privateKey").files[0];
+      const userId = document.getElementById("decryptUserId").value;
+
+      if (!file || !priKey || !userId) return alert("모든 입력값을 채워주세요.");
+
+      formData.append("file", file);
+      formData.append("private_key", priKey);
+      formData.append("user_id", userId);
+
+      fetch("/decrypt", {
+        method: "POST",
+        body: formData
+      }).then(res => res.text()).then(showResult);
+    }
+  </script>
+</body>
+</html>
