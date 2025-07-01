@@ -18,24 +18,46 @@
   </form>
   <div class="output" id="result"></div>
 
-  <script>
-    function simulateLogin() {
-      const user = document.getElementById("username").value.toLowerCase();
-      const pass = document.getElementById("password").value.toLowerCase();
-      const result = document.getElementById("result");
+<script>
+function simulateLogin() {
+  const user = document.getElementById("username").value.toLowerCase();
+  const pass = document.getElementById("password").value.toLowerCase();
+  const result = document.getElementById("result");
 
-      if ((user === "admin" && pass === "admin123") ||
-          user.includes("' or '1'='1") || pass.includes("' or '1'='1") ||
-          user.includes("' or 1=1") || pass.includes("' or 1=1")) {
-        result.textContent = "✅ 로그인 성공! (Injection 또는 실제 계정)";
-      } else if (user === "ntests" && pass === "ilovesqlinjection") {
-        result.textContent = "🎯 최종 계정 로그인 성공! (ntests 계정)";
-      } else if (user.includes("select") || pass.includes("select")) {
-        result.textContent = "📄 SQL 구조 탐지됨. 시도 중...";
-      } else {
-        result.textContent = "❌ 로그인 실패.";
-      }
-    }
-  </script>
+  if (user === "ntests" && pass === "ilovesqlinjection") {
+    result.textContent = "🎯 최종 계정 로그인 성공!";
+  } else if (user.includes("' union select null, table_name from information_schema.tables") || pass.includes("' union select null, table_name from information_schema.tables")) {
+    console.log("[📁] 테이블 목록 추출됨: users, logs");
+    result.textContent = "users\nlogs";
+  } else if (user.includes("from information_schema.columns") && user.includes("users")) {
+    console.log("[🧱] 컬럼 목록 추출됨: id, username, password");
+    result.textContent = "id\nusername\npassword";
+  } else if (user.includes("select username, password from users") || pass.includes("select username, password from users")) {
+    console.log("[🔓] 유저 데이터 추출: ntests 계정 포함");
+    result.textContent = "admin | admin123\nuser | test1234\nntests | ilovesqlinjection";
+  } else if (user.includes("select") && user.includes("@@version")) {
+    console.log("[🔍] DB 버전 조회 시도");
+    result.textContent = "MySQL 5.7.31";
+  } else if (user.includes("order by")) {
+    console.log("[📐] 컬럼 개수 추정 시도");
+    result.textContent = "ORDER BY 성공 (컬럼 개수 2)";
+  } else if (user.includes("sleep") || pass.includes("sleep")) {
+    console.log("[⏱] Time-based Blind SQL Injection 의심됨.");
+    result.textContent = "⏳ 응답이 지연되었습니다.";
+  } else if (user.includes("length") || pass.includes("length")) {
+    console.log("[🔍] Blind SQLi 탐지 시도");
+    result.textContent = "🕵️ 탐지 시도 감지됨.";
+  } else if (user.includes("admin") && user.includes("--")) {
+    console.log("[⚠️] 우회 로그인 시도 감지됨.");
+    result.textContent = "❌ 로그인 실패.";
+  } else if (user.includes("'")) {
+    console.log("[🧨] SQL 구문 오류 발생");
+    result.textContent = "❌ SQL 구문 오류 발생.";
+  } else {
+    result.textContent = "❌ 로그인 실패.";
+  }
+}
+</script>
+
 </body>
 </html>
