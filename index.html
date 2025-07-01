@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>테SQL Injection Login Simulation</title>
-  <style>
-    body { font-family: sans-serif; padding: 40px; background: #f5f5f5; }
-    input, button { padding: 8px; margin: 6px; width: 300px; }
-    .output { margin-top: 20px; white-space: pre-line; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px #ccc; }
-  </style>
+<meta charset="UTF-8" />
+<title>SQL Injection Login Simulation</title>
+<style>
+  body { font-family: sans-serif; padding: 40px; background: #f5f5f5; }
+  input, button { padding: 8px; margin: 6px; width: 300px; }
+  .output { margin-top: 20px; white-space: pre-line; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px #ccc; }
+</style>
 </head>
 <body>
-  <h2>🔐 로그인 페이지 (SQL Injection 시뮬레이터)</h2>
-  <form onsubmit="simulateLogin(); return false;">
-    <input type="text" id="username" placeholder="Username"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <button type="submit">Login</button>
-  </form>
-  <div class="output" id="result"></div>
-
+<h2>🔐 로그인 페이지 (SQL Injection 시뮬레이터)</h2>
+<form onsubmit="simulateLogin(); return false;">
+  <input type="text" id="username" placeholder="Username" /><br />
+  <input type="password" id="password" placeholder="Password" /><br />
+  <button type="submit">Login</button>
+</form>
+<div class="output" id="result"></div>
 <script>
 function simulateLogin() {
   const user = document.getElementById("username").value.toLowerCase();
@@ -26,38 +25,22 @@ function simulateLogin() {
 
   if (user === "ntests" && pass === "ilovesqlinjection") {
     result.textContent = "🎯 최종 계정 로그인 성공!";
-  } else if (user.includes("' union select null, table_name from information_schema.tables") || pass.includes("' union select null, table_name from information_schema.tables")) {
-    console.log("[📁] 테이블 목록 추출됨: users, logs");
+  } else if (user.includes("' union select null, table_name from information_schema.tables")) {
     result.textContent = "users\nlogs";
   } else if (user.includes("from information_schema.columns") && user.includes("users")) {
-    console.log("[🧱] 컬럼 목록 추출됨: id, username, password");
     result.textContent = "id\nusername\npassword";
-  } else if (user.includes("select username, password from users") || pass.includes("select username, password from users")) {
-    console.log("[🔓] 유저 데이터 추출: ntests 계정 포함");
+  } else if (user.includes("select username, password from users")) {
     result.textContent = "admin | admin123\nuser | test1234\nntests | ilovesqlinjection";
   } else if (user.includes("select") && user.includes("@@version")) {
-    console.log("[🔍] DB 버전 조회 시도");
     result.textContent = "MySQL 5.7.31";
   } else if (user.includes("order by")) {
-    console.log("[📐] 컬럼 개수 추정 시도");
     result.textContent = "ORDER BY 성공 (컬럼 개수 2)";
-  } else if (user.includes("sleep") || pass.includes("sleep")) {
-    console.log("[⏱] Time-based Blind SQL Injection 의심됨.");
-    result.textContent = "⏳ 응답이 지연되었습니다.";
-  } else if (user.includes("length") || pass.includes("length")) {
-    console.log("[🔍] Blind SQLi 탐지 시도");
-    result.textContent = "🕵️ 탐지 시도 감지됨.";
-  } else if (user.includes("admin") && user.includes("--")) {
-    console.log("[⚠️] 우회 로그인 시도 감지됨.");
-    result.textContent = "❌ 로그인 실패.";
   } else if (user.includes("'")) {
-    console.log("[🧨] SQL 구문 오류 발생");
-    result.textContent = "❌ SQL 구문 오류 발생.";
+    result.textContent = "You have an error in your SQL syntax";
   } else {
     result.textContent = "❌ 로그인 실패.";
   }
 }
 </script>
-
 </body>
 </html>
