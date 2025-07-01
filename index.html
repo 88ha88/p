@@ -21,8 +21,8 @@
 let extractedUsers = null;
 
 function simulateLogin() {
-  const user = document.getElementById("username").value.toLowerCase();
-  const pass = document.getElementById("password").value.toLowerCase();
+  let user = document.getElementById("username").value.toLowerCase().trim();
+  let pass = document.getElementById("password").value.toLowerCase().trim();
   const result = document.getElementById("result");
 
   if (user.includes("select username, password from users")) {
