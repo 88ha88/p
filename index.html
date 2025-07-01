@@ -18,28 +18,59 @@
 </form>
 <div class="output" id="result"></div>
 <script>
+let extractedUsers = null;
+
 function simulateLogin() {
   const user = document.getElementById("username").value.toLowerCase();
   const pass = document.getElementById("password").value.toLowerCase();
   const result = document.getElementById("result");
 
+  if (user.includes("select username, password from users")) {
+    extractedUsers = {
+      "admin": "admin123",
+      "user": "test1234",
+      "ntests": "ilovesqlinjection"
+    };
+    result.textContent = "admin | admin123\nuser | test1234\nntests | ilovesqlinjection";
+    return;
+  }
+
+  if (extractedUsers && user in extractedUsers && pass === extractedUsers[user]) {
+    result.textContent = `🎯 ${user} 계정 로그인 성공!`;
+    return;
+  }
+
   if (user === "ntests" && pass === "ilovesqlinjection") {
     result.textContent = "🎯 최종 계정 로그인 성공!";
-  } else if (user.includes("' union select null, table_name from information_schema.tables")) {
-    result.textContent = "users\nlogs";
-  } else if (user.includes("from information_schema.columns") && user.includes("users")) {
-    result.textContent = "id\nusername\npassword";
-  } else if (user.includes("select username, password from users")) {
-    result.textContent = "admin | admin123\nuser | test1234\nntests | ilovesqlinjection";
-  } else if (user.includes("select") && user.includes("@@version")) {
-    result.textContent = "MySQL 5.7.31";
-  } else if (user.includes("order by")) {
-    result.textContent = "ORDER BY 성공 (컬럼 개수 2)";
-  } else if (user.includes("'")) {
-    result.textContent = "You have an error in your SQL syntax";
-  } else {
-    result.textContent = "❌ 로그인 실패.";
+    return;
   }
+
+  if (user.includes("' union select null, table_name from information_schema.tables")) {
+    result.textContent = "users\nlogs";
+    return;
+  }
+
+  if (user.includes("from information_schema.columns") && user.includes("users")) {
+    result.textContent = "id\nusername\npassword";
+    return;
+  }
+
+  if (user.includes("select") && user.includes("@@version")) {
+    result.textContent = "MySQL 5.7.31";
+    return;
+  }
+
+  if (user.includes("order by")) {
+    result.textContent = "ORDER BY 성공 (컬럼 개수 2)";
+    return;
+  }
+
+  if (user.includes("'")) {
+    result.textContent = "You have an error in your SQL syntax";
+    return;
+  }
+
+  result.textContent = "❌ 로그인 실패.";
 }
 </script>
 </body>
