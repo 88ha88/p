@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>테SQL Injection Login Simulation</title>
+<title>SQL Injection Login Simulation</title>
 <style>
   body { font-family: sans-serif; padding: 40px; background: #f5f5f5; }
   input, button { padding: 8px; margin: 6px; width: 300px; }
@@ -18,7 +18,11 @@
 </form>
 <div class="output" id="result"></div>
 <script>
-let extractedUsers = null;
+let extractedUsers = {
+  "admin": "admin123",
+  "user": "test1234",
+  "ntests": "ilovesqlinjection"
+};
 
 function simulateLogin() {
   let user = document.getElementById("username").value.toLowerCase().trim();
@@ -26,16 +30,11 @@ function simulateLogin() {
   const result = document.getElementById("result");
 
   if (user.includes("select username, password from users")) {
-    extractedUsers = {
-      "admin": "admin123",
-      "user": "test1234",
-      "ntests": "ilovesqlinjection"
-    };
-    result.textContent = "admin | admin123\nuser | test1234\nntests | ilovesqlinjection";
+    result.textContent = Object.entries(extractedUsers).map(([u,p]) => `${u} | ${p}`).join('\n');
     return;
   }
 
-  if (extractedUsers && user in extractedUsers && pass === extractedUsers[user]) {
+  if (user in extractedUsers && pass === extractedUsers[user]) {
     result.textContent = `🎯 ${user} 계정 로그인 성공!`;
     return;
   }
