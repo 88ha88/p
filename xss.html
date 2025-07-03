@@ -24,12 +24,19 @@
       border-radius: 10px;
       background-color: #f1f3f5;
     }
+    .comment {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2 class="mb-4">⚠️ XSS Injection 시뮬레이터</h2>
-    <form onsubmit="showInput(); return false;">
+    <h2 class="mb-4">⚠️ XSS 시뮬레이터</h2>
+    <form onsubmit="addComment(); return false;">
       <div class="mb-3">
         <label for="comment" class="form-label">댓글을 입력하세요:</label>
         <input type="text" class="form-control" id="comment" placeholder="ex) &lt;script&gt;alert(1)&lt;/script&gt;" />
@@ -37,18 +44,23 @@
       <button type="submit" class="btn btn-warning">제출</button>
     </form>
 
-    <div class="output mt-4" id="resultBox">
-      <strong>출력 결과:</strong>
-      <div id="result" class="mt-2"></div>
+    <div class="output mt-4">
+      <strong>댓글 목록:</strong>
+      <div id="commentList" class="mt-2"></div>
     </div>
 
     <a href="index.html" class="btn btn-secondary mt-4">⬅ 메인으로</a>
   </div>
 
   <script>
-    function showInput() {
+    const commentList = document.getElementById("commentList");
+
+    function addComment() {
       const input = document.getElementById("comment").value;
-      document.getElementById("result").innerHTML = input;
+      const commentBox = document.createElement("div");
+      commentBox.className = "comment";
+      commentBox.innerHTML = input;
+      commentList.appendChild(commentBox);
     }
   </script>
 </body>
