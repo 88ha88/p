@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>SQL Injection Login Simulation</title>
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    height: 100vh;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .container {
+    text-align: center;
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #ccc;
+  }
+  input, button {
+    padding: 10px;
+    margin: 8px;
+    width: 280px;
+    font-size: 16px;
+  }
+  .output {
+    margin-top: 20px;
+    white-space: pre-line;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px #ccc;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>🔐 로그인 페이지 (SQL Injection 시뮬레이터)</h2>
+  <form onsubmit="simulateLogin(); return false;">
+    <input type="text" id="username" placeholder="Username" /><br />
+    <input type="password" id="password" placeholder="Password" /><br />
+    <button type="submit">Login</button>
+  </form>
+  <div class="output" id="result"></div>
+</div>
+<script>
+let extractedUsers = {
+  "admin": "admin123",
+  "user": "test1234",
+  "ntests": "ilovesqlinjection"
+};
+
+function simulateLogin() {
+  let user = document.getElementById("username").value.toLowerCase().trim();
+  let pass = document.getElementById("password").value.toLowerCase().trim();
+  const result = document.getElementById("result");
+
+  if (user.includes("select username, password from users")) {
+    result.textContent = Object.entries(extractedUsers).map(([u,p]) => `${u} | ${p}`).join('\n');
+    return;
+  }
+
+  if (user in extractedUsers && pass === extractedUsers[user]) {
+    result.textContent = `🎯 ${user} 계정 로그인 성공!`;
+    return;
+  }
+
+  if (user === "ntests" && pass === "ilovesqlinjection") {
+    result.textContent = "🎯 최종 계정 로그인 성공!";
+    return;
+  }
+
+  if (user.includes("' union select null, table_name from information_schema.tables")) {
+    result.textContent = "users\nlogs";
+    return;
+  }
+
+  if (user.includes("from information_schema.columns") && user.includes("users")) {
+    result.textContent = "id\nusername\npassword";
+    return;
+  }
+
+  if (user.includes("select") && user.includes("@@version")) {
+    result.textContent = "MySQL 5.7.31";
+    return;
+  }
+
+  if (user.includes("order by")) {
+    result.textContent = "ORDER BY 성공 (컬럼 개수 2)";
+    return;
+  }
+
+  if (user.includes("'")) {
+    result.textContent = "You have an error in your SQL syntax";
+    return;
+  }
+
+  result.textContent = "❌ 로그인 실패.";
+}
+</script>
+</body>
+</html>
